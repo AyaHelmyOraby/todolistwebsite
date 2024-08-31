@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .tasktable {
+            background-color: rgb(239, 239, 239);
+            width: 60%;
+            margin-top: 30px;
+        }
+
+        button {
+            border: none;
+            font-size: 20px;
+        }
+
+        .task:hover {
+            box-shadow: 0px 3px 15px 0px rgb(0, 0, 0);
+        }
+
+        button.circular {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            line-height: 0%;
+        }
+
+        .task {
+            display: flex;
+            background-color: rgb(158, 253, 160);
+            padding: 4px;
+            border-bottom: solid black 1px;
+            transition: box-shadow 0.2s;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            background-color: rgb(200, 200, 200);
+        }
+
+        body {
+            font-family: "Cairo", sans-serif;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+
+<body style="background-color: rgb(52, 14, 88);">
+    <div style="direction: rtl;">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <div class="tasktable">
+                <div
+                    style="display: flex; width: 100%;height: 15%;align-items: center; background: rgb(78, 38, 115); position: relative;">
+                    <h1
+                        style="color: rgb(253, 253, 253); margin: 0; position: absolute; left: 50%; transform: translateX(-50%);">
+                        مهامي</h1>
+                    <button id="addtask" class="circular" style="margin-left: auto;">
+                        <span class="material-symbols-outlined">
+                            add
+                        </span>
+                    </button>
+                </div>
+                <div id="tasks" class="tasks" style="padding: 20px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [
+            {
+                "title": "قراءة الكتاب",
+                "date": "10-10-2024",
+                "isdone": false
+            },
+            {
+                "title": "اخلص الكورس",
+                "date": "10-10-2024",
+                "isdone": false
+            },
+            {
+                "title": "الحفظ",
+                "date": "10-10-2024",
+                "isdone": false
+            }
+        ];
+
+        function filltasktopage() {
+            let tasksContainer = document.getElementById("tasks");
+            tasksContainer.innerHTML = '';
+            tasks.forEach(t => {
+                let content = `
+                    <div class="task ${t.isdone ? 'completed' : ''}">
+                        <div style="width:70%;">
+                            <h2 style="color: rgb(37, 52, 65);">${t.title}</h2>
+                            <div>
+                                <span class="material-symbols-outlined">
+                                    calendar_month
+                                </span>
+                                <span>${t.date}</span>
+                            </div>
+                        </div>
+                        <div style="width:30%; justify-content: space-between; display: flex; align-items: center;">
+                            <button onclick="deleteTask(${tasks.indexOf(t)})" class="circular" style="background-color: brown;">
+                                <span class="material-symbols-outlined">
+                                    delete
+                                </span>
+                            </button>
+                            <button onclick="editTask(${tasks.indexOf(t)})" class="circular" style="background-color: rgb(146, 153, 119);">
+                                <span class="material-symbols-outlined">
+                                    edit
+                                </span>
+                            </button>
+                            <button onclick="completeTask(${tasks.indexOf(t)})" class="circular" style="background-color: rgb(184, 155, 155);">
+                               <span class="material-symbols-outlined">
+                                   check
+                               </span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                tasksContainer.innerHTML += content;
+            });
+        }
+
+        document.getElementById("addtask").addEventListener("click", function () {
+            let now = new Date();
+            let date = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+            let title = prompt("الرجاء ادخال عنوان المهمة");
+            let taskobject = {
+                "title": title,
+                "date": date,
+                "isdone": false
+            };
+            tasks.push(taskobject);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            filltasktopage();
+        });
+
+        filltasktopage(); // Initial call to display the tasks when the page loads
+
+        function deleteTask(indexOfTask) {
+            let taskchoice = tasks[indexOfTask];
+            let isconfirm = confirm("هل تريد حذف هذ المهمة؟" + taskchoice.title);
+
+            if (isconfirm) {
+                tasks.splice(indexOfTask, 1);
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                filltasktopage();
+            }
+        }
+
+        function editTask(indexOfTask) {
+            let taskchoice = tasks[indexOfTask];
+            let newTask = prompt("الرجاء ادخال عنوان المهمة", taskchoice.title);
+            if (newTask) {
+                tasks[indexOfTask].title = newTask;
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                filltasktopage();
+            }
+        }
+
+        function completeTask(indexOfTask) {
+            tasks[indexOfTask].isdone = !tasks[indexOfTask].isdone;
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            filltasktopage();
+        }
+    </script>
+</body>
+
+</html>
